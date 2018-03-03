@@ -1,0 +1,48 @@
+#RESTFUL ROUTES MAP HTTP VERBS WITH THE URL RESOURCE
+
+class ApplicationController < Sinatra::Base
+
+  get '/posts' do
+    @posts = Post.all
+    erb :index
+  end
+  #Allows the view to access all the posts in the database through the instance variable @posts.
+
+  get '/posts/new' do
+    erb :new
+  end
+  #Loads the form to create a new blog post.
+
+  post '/posts' do
+    @post = Post.create(title: params[:title], content: params[:content])
+    redirect to "/posts/#{@post.id}"
+  end
+  #Creates a new post based on the params from the form in view file new.erb and saves it to the database. Redirects to new post page.
+
+  get '/posts/:id' do
+    @post = Post.find_by_id(params[:id])
+    erb :show
+  end
+  #Displays a single post from the post id key contained in the params hash.
+
+  get '/posts/:id/edit' do  #load edit form
+    @post = Post.find_by_id(params[:id])
+    erb :edit
+  end
+
+  patch '/posts/:id' do #edit form submission
+    @post = Post.find_by_id(params[:id])
+    @post.title = params[:title]
+    @post.content = params[:content]
+    @post.save
+    redirect to "/posts/#{@post.id}"
+  end
+  #Pulls the blog post by the ID from the URL, then updates the title and content attributes and saves to database. Redirects to updated post page.
+  # Your form must include a hidden input field that will submit our form via patch.
+
+  delete '/posts/:id/delete' do #delete action
+    @post = Post.find_by_id(params[:id])
+    @post.delete
+    redirect to '/posts'
+  end
+end
